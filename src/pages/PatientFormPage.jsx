@@ -1,7 +1,23 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useBlocker, useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, Save } from "lucide-react";
 import { usePatients } from "../context/PatientContext";
-import { Save, ArrowLeft } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import { ChoiceField, FormSection, TextAreaField, TextField } from "../components/FormFields";
+import ConfirmDialog from "../components/ConfirmDialog";
+import Spinner from "../components/Spinner";
+import { LoadError } from "../components/PageStates";
+import NotFoundPage from "./NotFoundPage";
+import { fullName } from "../utils/format";
+import { getDraft, saveDraft } from "../utils/storage";
+import {
+  normalizeDni,
+  validateBirthDate,
+  validateDni,
+  validateEmail,
+  validatePhone,
+} from "../utils/validation";
 
 const EMPTY_FORM = {
   firstName: "",
@@ -21,265 +37,361 @@ const EMPTY_FORM = {
   status: "active",
 };
 
-const GENDER_OPTIONS = ["Masculino", "Femenino", "Otro", "Prefiero no decirlo"];
+const GENDER_OPTIONS = ["Femenino", "Masculino", "Otro", "Prefiero no decirlo"];
 const BLOOD_TYPE_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+const STATUS_OPTIONS = [
+  { value: "active", label: "Activo" },
+  { value: "inactive", label: "Inactivo" },
+];
 
-export default function PatientFormPage() {
-  const { id } = useParams();
+const FIELD_LABELS = {
+  firstName: "Nombre",
+  lastName: "Apellidos",
+  dni: "DNI / NIE",
+  birthDate: "Fecha de nacimiento",
+  gender: "Género",
+  phone: "Teléfono",
+  email: "Correo electrónico",
+};
+
+const fromPatient = (patient) =>
+  Object.fromEntries(Object.keys(EMPTY_FORM).map((key) => [key, patient[key] ?? EMPTY_FORM[key]]));
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+function validateField(name, form, original) {
+  switch (name) {
+    case "firstName":
+      return form.firstName.trim() ? "" : "Escribe el nombre del paciente.";
+    case "lastName":
+      return form.lastName.trim() ? "" : "Escribe los apellidos del paciente.";
+    case "dni":
+      // La letra de control solo se exige si el DNI se ha cambiado.
+      return validateDni(form.dni, { checkLetter: normalizeDni(form.dni) !== normalizeDni(original.dni) });
+    case "birthDate":
+      return validateBirthDate(form.birthDate);
+    case "gender":
+      return form.gender ? "" : "Elige una opción de género.";
+    case "phone":
+      return validatePhone(form.phone);
+    case "email":
+      return validateEmail(form.email);
+    default:
+      return "";
+  }
+}
+
+function PatientForm({ initial, patientId, restoredDraft }) {
   const navigate = useNavigate();
-  const { getPatient, addPatient, updatePatient } = usePatients();
-  const isEditing = !!id;
+  const { addPatient, updatePatient } = usePatients();
+  const { user } = useAuth();
+  const toast = useToast();
+  const isEditing = Boolean(patientId);
 
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState(restoredDraft || initial);
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showDraftNotice, setShowDraftNotice] = useState(Boolean(restoredDraft));
+  const allowLeave = useRef(false);
+  const summaryRef = useRef(null);
+
+  const dirty = JSON.stringify(form) !== JSON.stringify(initial);
+
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      dirty && !allowLeave.current && currentLocation.pathname !== nextLocation.pathname
+  );
 
   useEffect(() => {
-    if (isEditing) {
-      const existing = getPatient(id);
-      if (existing) {
-        setForm(existing);
-      } else {
-        navigate("/patients");
-      }
-    }
-  }, [id, isEditing, getPatient, navigate]);
+    if (!dirty) return;
+    const warn = (e) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
 
-  function handleChange(e) {
-    const { name, value } = e.target;
+  // Borrador local solo para altas nuevas (sobrevive a una recarga o interrupción).
+  useEffect(() => {
+    if (isEditing) return;
+    saveDraft(user.id, dirty ? form : null);
+  }, [form, dirty, isEditing, user.id]);
+
+  function setValue(name, value) {
     setForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   }
 
-  function validate() {
-    const errs = {};
-    if (!form.firstName.trim()) errs.firstName = "El nombre es obligatorio.";
-    if (!form.lastName.trim()) errs.lastName = "Los apellidos son obligatorios.";
-    if (!form.dni.trim()) errs.dni = "El DNI/NIE es obligatorio.";
-    if (!form.birthDate) errs.birthDate = "La fecha de nacimiento es obligatoria.";
-    if (!form.gender) errs.gender = "Selecciona un género.";
-    return errs;
+  const handleChange = (e) => setValue(e.target.name, e.target.value);
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    if (!(name in FIELD_LABELS)) return;
+    const error = validateField(name, form, initial);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  function focusField(name) {
+    const el = document.getElementById(name);
+    const target = el?.matches("input, textarea, select") ? el : el?.querySelector("input");
+    target?.focus();
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
+    setSubmitError("");
+    const next = Object.fromEntries(
+      Object.keys(FIELD_LABELS).map((name) => [name, validateField(name, form, initial)])
+    );
+    setErrors(next);
+    if (Object.values(next).some(Boolean)) {
+      requestAnimationFrame(() => summaryRef.current?.focus());
       return;
     }
 
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 400));
-
-    if (isEditing) {
-      updatePatient(id, form);
-    } else {
-      addPatient(form);
+    const payload = { ...form, dni: normalizeDni(form.dni) };
+    try {
+      const saved = isEditing ? await updatePatient(patientId, payload) : await addPatient(payload);
+      if (!isEditing) saveDraft(user.id, null);
+      allowLeave.current = true;
+      toast(isEditing ? "Cambios guardados." : `${fullName(saved)} registrado en tu gradilla.`);
+      navigate(`/patients/${saved.id}`);
+    } catch (err) {
+      setSubmitError(err.message);
+      setSaving(false);
+      requestAnimationFrame(() => summaryRef.current?.focus());
     }
-
-    navigate("/patients");
-    setSaving(false);
   }
 
-  function Field({ label, name, required, type = "text", children }) {
-    return (
-      <div>
-        <label htmlFor={name} className="mb-1.5 block text-sm font-medium text-gray-700">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
-        {children || (
-          <input
-            id={name}
-            name={name}
-            type={type}
-            value={form[name]}
-            onChange={handleChange}
-            className={`w-full rounded-lg border px-3 py-2.5 text-sm transition focus:ring-2 focus:outline-none ${
-              errors[name]
-                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                : "border-gray-300 focus:border-primary-500 focus:ring-primary-500/20"
-            }`}
-          />
-        )}
-        {errors[name] && <p className="mt-1 text-xs text-red-600">{errors[name]}</p>}
-      </div>
-    );
-  }
+  const errorEntries = Object.entries(errors).filter(([, msg]) => msg);
+  const fieldProps = (name) => ({
+    id: name,
+    value: form[name],
+    onChange: handleChange,
+    onBlur: handleBlur,
+    error: errors[name],
+  });
+  const backTo = isEditing ? `/patients/${patientId}` : "/patients";
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="rounded-lg border border-gray-300 p-2 text-gray-500 transition hover:bg-gray-50"
-          aria-label="Volver atrás"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {isEditing ? "Editar Paciente" : "Nuevo Paciente"}
-          </h1>
-          <p className="mt-0.5 text-sm text-gray-500">
-            {isEditing
-              ? "Modifica los datos del paciente."
-              : "Completa el formulario para registrar un nuevo paciente."}
-          </p>
-        </div>
+    <div className="max-w-3xl space-y-6">
+      <Link
+        to={backTo}
+        className="-ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-ink-2 hover:text-ink"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        {isEditing ? "Volver a la ficha" : "Pacientes"}
+      </Link>
+
+      <div>
+        <h1 className="text-2xl font-bold text-ink sm:text-3xl">
+          {isEditing ? `Editar a ${fullName(initial)}` : "Nuevo paciente"}
+        </h1>
+        <p className="mt-1 text-ink-2">
+          Los campos con <span aria-hidden="true">*</span>
+          <span className="sr-only">asterisco</span> son obligatorios; el resto puedes completarlo más tarde.
+        </p>
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} noValidate>
-        <div className="space-y-6">
-          {/* Personal info */}
-          <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Información Personal</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Nombre" name="firstName" required />
-              <Field label="Apellidos" name="lastName" required />
-              <Field label="DNI / NIE" name="dni" required />
-              <Field label="Fecha de nacimiento" name="birthDate" type="date" required />
-              <Field label="Género" name="gender" required>
-                <select
-                  id="gender"
-                  name="gender"
-                  value={form.gender}
-                  onChange={handleChange}
-                  className={`w-full rounded-lg border px-3 py-2.5 text-sm transition focus:ring-2 focus:outline-none ${
-                    errors.gender
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-gray-300 focus:border-primary-500 focus:ring-primary-500/20"
-                  }`}
-                >
-                  <option value="">Seleccionar...</option>
-                  {GENDER_OPTIONS.map((g) => (
-                    <option key={g} value={g}>{g}</option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Grupo sanguíneo" name="bloodType">
-                <select
-                  id="bloodType"
-                  name="bloodType"
-                  value={form.bloodType}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm transition focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none"
-                >
-                  <option value="">Seleccionar...</option>
-                  {BLOOD_TYPE_OPTIONS.map((b) => (
-                    <option key={b} value={b}>{b}</option>
-                  ))}
-                </select>
-              </Field>
-            </div>
-          </section>
-
-          {/* Contact info */}
-          <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Contacto</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Teléfono" name="phone" type="tel" />
-              <Field label="Correo electrónico" name="email" type="email" />
-              <div className="sm:col-span-2">
-                <Field label="Dirección" name="address" />
-              </div>
-              <Field label="Nº Seguridad Social" name="insuranceNumber" />
-            </div>
-          </section>
-
-          {/* Medical info */}
-          <section className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Información Médica</h2>
-            <div className="grid gap-4">
-              <Field label="Alergias" name="allergies">
-                <textarea
-                  id="allergies"
-                  name="allergies"
-                  rows={2}
-                  value={form.allergies}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm transition focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none"
-                  placeholder="Ej: Penicilina, Polen..."
-                />
-              </Field>
-              <Field label="Diagnóstico" name="diagnosis">
-                <textarea
-                  id="diagnosis"
-                  name="diagnosis"
-                  rows={2}
-                  value={form.diagnosis}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm transition focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none"
-                />
-              </Field>
-              <Field label="Tratamiento" name="treatment">
-                <textarea
-                  id="treatment"
-                  name="treatment"
-                  rows={3}
-                  value={form.treatment}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm transition focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none"
-                />
-              </Field>
-              <Field label="Notas clínicas" name="notes">
-                <textarea
-                  id="notes"
-                  name="notes"
-                  rows={3}
-                  value={form.notes}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm transition focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none"
-                />
-              </Field>
-              {isEditing && (
-                <Field label="Estado" name="status">
-                  <select
-                    id="status"
-                    name="status"
-                    value={form.status}
-                    onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm transition focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none"
-                  >
-                    <option value="active">Activo</option>
-                    <option value="inactive">Inactivo</option>
-                  </select>
-                </Field>
-              )}
-            </div>
-          </section>
-        </div>
-
-        {/* Submit */}
-        <div className="mt-6 flex justify-end gap-3">
+      {showDraftNotice && (
+        <div className="flex flex-col gap-3 rounded-lg border border-dashed border-violet-deep bg-violet-wash px-4 py-3 text-sm text-violet-ink sm:flex-row sm:items-center sm:justify-between">
+          <p>Hemos recuperado el borrador que dejaste a medias.</p>
           <button
             type="button"
-            onClick={() => navigate(-1)}
-            className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+            className="btn btn-quiet !min-h-9 self-start !text-violet-ink sm:self-auto"
+            onClick={() => {
+              setForm(initial);
+              setErrors({});
+              saveDraft(user.id, null);
+              setShowDraftNotice(false);
+            }}
           >
-            Cancelar
+            Descartar borrador
           </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+        </div>
+      )}
+
+      {(errorEntries.length > 0 || submitError) && (
+        <div
+          ref={summaryRef}
+          tabIndex={-1}
+          role="alert"
+          className="rounded-lg bg-warn-wash px-4 py-3 text-sm text-warn-ink outline-none focus-visible:outline-2 focus-visible:outline-warn-ink"
+        >
+          {submitError ? (
+            <p className="font-semibold">No se ha podido guardar: {submitError}</p>
+          ) : (
+            <>
+              <p className="font-semibold">
+                Revisa {errorEntries.length === 1 ? "este campo" : `estos ${errorEntries.length} campos`} antes de
+                guardar:
+              </p>
+              <ul className="mt-1.5 list-disc space-y-0.5 pl-5">
+                {errorEntries.map(([name, msg]) => (
+                  <li key={name}>
+                    <button type="button" className="text-left underline" onClick={() => focusField(name)}>
+                      {FIELD_LABELS[name]}
+                    </button>
+                    : {msg}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
+        <FormSection title="Identificación">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <TextField label="Nombre" required autoComplete="off" {...fieldProps("firstName")} />
+            <TextField label="Apellidos" required autoComplete="off" {...fieldProps("lastName")} />
+            <TextField
+              label="DNI / NIE"
+              required
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              hint="8 números y letra (12345678Z) o NIE (X1234567L)."
+              inputClassName="font-mono uppercase"
+              {...fieldProps("dni")}
+            />
+            <TextField
+              label="Fecha de nacimiento"
+              type="date"
+              required
+              max={today()}
+              inputClassName="font-mono"
+              {...fieldProps("birthDate")}
+            />
+            <ChoiceField
+              id="gender"
+              label="Género"
+              required
+              options={GENDER_OPTIONS}
+              value={form.gender}
+              onChange={setValue}
+              error={errors.gender}
+              className="sm:col-span-2"
+            />
+          </div>
+        </FormSection>
+
+        <FormSection title="Información clínica" description="Las alergias se mostrarán destacadas en rojo en toda la app.">
+          <div className="space-y-5">
+            <TextAreaField
+              label="Alergias"
+              rows={2}
+              placeholder="Ej.: penicilina, látex. Déjalo vacío si no tiene."
+              {...fieldProps("allergies")}
+            />
+            <ChoiceField
+              id="bloodType"
+              label="Grupo sanguíneo"
+              options={BLOOD_TYPE_OPTIONS}
+              value={form.bloodType}
+              onChange={setValue}
+            />
+            <TextAreaField label="Diagnóstico" rows={2} {...fieldProps("diagnosis")} />
+            <TextAreaField label="Tratamiento" rows={3} {...fieldProps("treatment")} />
+            <TextAreaField label="Notas clínicas" rows={3} {...fieldProps("notes")} />
+            {isEditing && (
+              <ChoiceField
+                id="status"
+                label="Estado"
+                required
+                options={STATUS_OPTIONS}
+                value={form.status}
+                onChange={setValue}
+              />
+            )}
+          </div>
+        </FormSection>
+
+        <FormSection title="Contacto y datos administrativos">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <TextField
+              label="Teléfono"
+              type="tel"
+              autoComplete="off"
+              inputMode="tel"
+              inputClassName="font-mono"
+              placeholder="+34 600 000 000"
+              {...fieldProps("phone")}
+            />
+            <TextField
+              label="Correo electrónico"
+              type="email"
+              autoComplete="off"
+              inputMode="email"
+              {...fieldProps("email")}
+            />
+            <TextField label="Dirección" autoComplete="off" className="sm:col-span-2" {...fieldProps("address")} />
+            <TextField
+              label="Nº Seguridad Social"
+              autoComplete="off"
+              inputClassName="font-mono"
+              {...fieldProps("insuranceNumber")}
+            />
+          </div>
+        </FormSection>
+
+        <div className="sticky bottom-0 -mx-4 flex flex-col-reverse gap-2 border-t border-rule bg-tray px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:p-0">
+          <Link to={backTo} className="btn btn-secondary">
+            Cancelar
+          </Link>
+          <button type="submit" disabled={saving} className="btn btn-primary">
             {saving ? (
               <>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Guardando...
+                <Spinner /> Guardando…
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" aria-hidden="true" />
-                {isEditing ? "Guardar Cambios" : "Registrar Paciente"}
+                {isEditing ? "Guardar cambios" : "Registrar paciente"}
               </>
             )}
           </button>
         </div>
       </form>
+
+      <ConfirmDialog
+        open={blocker.state === "blocked"}
+        title="¿Salir sin guardar?"
+        confirmLabel="Salir sin guardar"
+        cancelLabel="Seguir editando"
+        onConfirm={() => {
+          if (!isEditing) saveDraft(user.id, null);
+          blocker.proceed?.();
+        }}
+        onCancel={() => blocker.reset?.()}
+      >
+        <p>Tienes cambios sin guardar en este formulario. Si sales ahora, se perderán.</p>
+      </ConfirmDialog>
     </div>
   );
+}
+
+export default function PatientFormPage() {
+  const { id } = useParams();
+  const { getPatient, status } = usePatients();
+  const { user } = useAuth();
+
+  if (!id) {
+    const draft = getDraft(user.id);
+    return <PatientForm key="new" initial={EMPTY_FORM} restoredDraft={draft ? { ...EMPTY_FORM, ...draft } : null} />;
+  }
+
+  if (status === "error") return <LoadError />;
+  if (status === "loading" || status === "idle") {
+    return (
+      <div className="max-w-3xl space-y-4" aria-hidden="true">
+        <span className="skeleton block h-8 w-64" />
+        <span className="skeleton block h-72 w-full rounded-xl" />
+      </div>
+    );
+  }
+  const patient = getPatient(id);
+  if (!patient) return <NotFoundPage />;
+  return <PatientForm key={id} initial={fromPatient(patient)} patientId={id} />;
 }

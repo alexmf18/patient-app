@@ -1,121 +1,82 @@
 import { NavLink } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Users,
-  UserPlus,
-  LogOut,
-  Menu,
-  X,
-  Heart,
-} from "lucide-react";
+import { LayoutGrid, Users, UserPlus, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import Logo from "./Logo";
 
 const NAV_ITEMS = [
-  { to: "/dashboard", label: "Panel Principal", icon: LayoutDashboard },
-  { to: "/patients", label: "Mis Pacientes", icon: Users },
-  { to: "/patients/new", label: "Nuevo Paciente", icon: UserPlus },
+  { to: "/dashboard", label: "Gradilla", icon: LayoutGrid },
+  { to: "/patients", label: "Pacientes", icon: Users, end: true },
+  { to: "/patients/new", label: "Nuevo paciente", icon: UserPlus, shortcut: "N" },
 ];
 
-export default function Sidebar({ isOpen, onToggle }) {
+/** Contenido de navegación compartido entre la barra fija y el cajón móvil. */
+export default function Sidebar({ onNavigate }) {
   const { user, logout } = useAuth();
 
   return (
-    <>
-      {/* Mobile overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={onToggle}
-          aria-hidden="true"
-        />
-      )}
+    <div className="flex h-full flex-col">
+      <div className="px-5 pt-5 pb-6">
+        <Logo />
+      </div>
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 z-50 flex h-full w-72 flex-col bg-gradient-to-b from-primary-800 to-primary-900 text-white shadow-xl transition-transform duration-300 lg:relative lg:z-auto lg:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-        role="navigation"
-        aria-label="Navegación principal"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-primary-700/50 px-6 py-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-500 shadow-md">
-              <Heart className="h-5 w-5 text-white" aria-hidden="true" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight">PatientApp</h1>
-              <p className="text-xs text-primary-300">Gestión Clínica</p>
-            </div>
-          </div>
-          <button
-            onClick={onToggle}
-            className="rounded-lg p-1.5 hover:bg-primary-700 lg:hidden"
-            aria-label="Cerrar menú"
+      <nav className="flex-1 px-3" aria-label="Navegación principal">
+        <ul className="space-y-1">
+          {NAV_ITEMS.map(({ to, label, icon: Icon, end, shortcut }) => (
+            <li key={to}>
+              <NavLink
+                to={to}
+                end={end}
+                onClick={onNavigate}
+                className={({ isActive }) =>
+                  `group flex min-h-11 items-center gap-3 rounded-lg px-3 text-[0.9375rem] font-medium transition-colors duration-150 ${
+                    isActive
+                      ? "bg-label text-ink"
+                      : "text-ink-2 hover:bg-label/60 hover:text-ink"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon
+                      className={`h-[18px] w-[18px] shrink-0 ${isActive ? "text-violet-deep" : ""}`}
+                      aria-hidden="true"
+                    />
+                    <span className="flex-1">{label}</span>
+                    {shortcut && (
+                      <kbd className="hidden rounded border border-rule-strong px-1.5 font-mono text-[0.7rem] text-ink-3 lg:inline">
+                        {shortcut}
+                      </kbd>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div className="border-t border-rule p-3">
+        <div className="flex items-center gap-3 px-3 py-2">
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink font-mono text-sm font-semibold text-white"
+            aria-hidden="true"
           >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* User info */}
-        <div className="border-b border-primary-700/50 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-500/20 text-sm font-semibold text-accent-300">
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{user?.name}</p>
-              <p className="truncate text-xs text-primary-300">{user?.email}</p>
-            </div>
+            {user?.name?.replace(/^(Dr|Dra)\.?\s+/i, "").charAt(0).toUpperCase()}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-ink">{user?.name}</p>
+            <p className="truncate text-xs text-ink-3">{user?.email}</p>
           </div>
         </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Menú principal">
-          <ul className="space-y-1">
-            {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
-              <li key={to}>
-                <NavLink
-                  to={to}
-                  onClick={() => window.innerWidth < 1024 && onToggle()}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                      isActive
-                        ? "bg-white/15 text-white shadow-sm"
-                        : "text-primary-200 hover:bg-white/10 hover:text-white"
-                    }`
-                  }
-                >
-                  <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                  {label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Footer */}
-        <div className="border-t border-primary-700/50 p-3">
-          <button
-            onClick={logout}
-            className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-primary-200 transition-all hover:bg-red-500/20 hover:text-red-300"
-          >
-            <LogOut className="h-5 w-5 shrink-0" aria-hidden="true" />
-            Cerrar Sesión
-          </button>
-        </div>
-      </aside>
-
-      {/* Mobile hamburger button */}
-      <button
-        onClick={onToggle}
-        className="fixed top-4 left-4 z-30 rounded-lg bg-primary-700 p-2 text-white shadow-lg lg:hidden"
-        aria-label="Abrir menú"
-        aria-expanded={isOpen}
-      >
-        <Menu className="h-5 w-5" />
-      </button>
-    </>
+        <button
+          type="button"
+          onClick={logout}
+          className="mt-1 flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-ink-2 transition-colors duration-150 hover:bg-label/60 hover:text-ink"
+        >
+          <LogOut className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
   );
 }

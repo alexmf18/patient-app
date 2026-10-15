@@ -1,189 +1,183 @@
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight, Pencil, UserPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { usePatients } from "../context/PatientContext";
-import {
-  Users,
-  UserCheck,
-  UserX,
-  UserPlus,
-  Activity,
-  Clock,
-  TrendingUp,
-} from "lucide-react";
+import Rack from "../components/Rack";
+import PatientLabel from "../components/PatientLabel";
+import { TubeGlyph } from "../components/Cap";
+import { LoadError } from "../components/PageStates";
+import { formatDate, fullName, hasAllergies, todayLabel } from "../utils/format";
+
+function Legend({ stats }) {
+  const items = [
+    { swatch: <span className="h-3.5 w-3.5 rounded-full bg-cap-green" />, value: stats.active, label: stats.active === 1 ? "activo" : "activos", to: "/patients?estado=activos" },
+    { swatch: <span className="h-3.5 w-3.5 rounded-full bg-cap-gray" />, value: stats.inactive, label: stats.inactive === 1 ? "inactivo" : "inactivos", to: "/patients?estado=inactivos" },
+    { swatch: <span className="h-3.5 w-3.5 rounded-full border-[3px] border-cap-red" />, value: stats.allergic, label: "con alergias", to: "/patients?estado=alergias" },
+  ];
+  return (
+    <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2" aria-label="Leyenda de la gradilla">
+      {items.map((item) => (
+        <li key={item.label}>
+          <Link
+            to={item.to}
+            className="inline-flex min-h-11 items-center gap-2 text-sm text-ink-2 underline decoration-rule-strong hover:text-ink hover:decoration-ink"
+          >
+            <span aria-hidden="true" className="flex">{item.swatch}</span>
+            <span className="font-mono font-bold text-ink tabular">{item.value}</span>
+            {item.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function RackSkeleton() {
+  return (
+    <div className="rounded-2xl bg-well p-3 sm:p-4" aria-hidden="true">
+      <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-8 sm:gap-3">
+        {Array.from({ length: 24 }, (_, i) => (
+          <span key={i} className="skeleton aspect-square rounded-full" />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { stats, allPatients } = usePatients();
+  const { patients, stats, status } = usePatients();
+  const [focusedId, setFocusedId] = useState(null);
 
-  const recentPatients = [...allPatients]
-    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
-    .slice(0, 5);
+  // Posiciones estables en la gradilla: orden alfabético por apellidos.
+  const rackOrder = useMemo(
+    () => [...patients].sort((a, b) => a.lastName.localeCompare(b.lastName, "es")),
+    [patients]
+  );
+  const recent = patients.slice(0, 5); // la API ya los devuelve por última actualización
+  const focused = patients.find((p) => p.id === focusedId) || recent[0];
 
-  const statCards = [
-    {
-      label: "Total Pacientes",
-      value: stats.total,
-      icon: Users,
-      color: "bg-primary-500",
-      lightBg: "bg-primary-50",
-      textColor: "text-primary-700",
-    },
-    {
-      label: "Pacientes Activos",
-      value: stats.active,
-      icon: UserCheck,
-      color: "bg-accent-500",
-      lightBg: "bg-accent-50",
-      textColor: "text-accent-700",
-    },
-    {
-      label: "Pacientes Inactivos",
-      value: stats.inactive,
-      icon: UserX,
-      color: "bg-amber-500",
-      lightBg: "bg-amber-50",
-      textColor: "text-amber-700",
-    },
-  ];
-
-  function formatDate(dateStr) {
-    return new Date(dateStr).toLocaleDateString("es-ES", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  }
+  if (status === "error") return <LoadError />;
+  const loading = status === "loading" || status === "idle";
 
   return (
-    <div className="space-y-8">
-      {/* Welcome header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-10">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-            Bienvenido/a, {user?.name?.split(" ")[0]}
-          </h1>
-          <p className="mt-1 text-gray-500">
-            Aquí tienes un resumen de tu actividad clínica.
-          </p>
+          <h1 className="text-2xl font-bold text-ink sm:text-3xl">Hola, {user?.name}</h1>
+          <p className="mt-1 font-mono text-sm text-ink-2 tabular first-letter:uppercase">{todayLabel()}</p>
         </div>
-        <Link
-          to="/patients/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700"
-        >
+        <Link to="/patients/new" className="btn btn-primary self-start sm:self-auto">
           <UserPlus className="h-4 w-4" aria-hidden="true" />
-          Nuevo Paciente
+          Nuevo paciente
         </Link>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {statCards.map(({ label, value, icon: Icon, color, lightBg, textColor }) => (
-          <article
-            key={label}
-            className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition hover:shadow-md"
-          >
-            <div className="flex items-center gap-4 p-5">
-              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${color}`}>
-                <Icon className="h-6 w-6 text-white" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">{label}</p>
-                <p className="text-3xl font-bold text-gray-900">{value}</p>
-              </div>
-            </div>
-            <div className={`${lightBg} px-5 py-2`}>
-              <p className={`text-xs font-medium ${textColor}`}>
-                <TrendingUp className="mr-1 inline h-3 w-3" aria-hidden="true" />
-                Datos actualizados
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+        <section aria-labelledby="rack-title">
+          <div className="mb-3 flex items-baseline justify-between gap-4">
+            <h2 id="rack-title" className="text-lg font-bold text-ink">
+              Tu gradilla
+            </h2>
+            {!loading && (
+              <p className="font-mono text-sm text-ink-3 tabular">
+                {stats.total} {stats.total === 1 ? "paciente" : "pacientes"}
               </p>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      {/* Quick actions + Recent patients */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Quick actions */}
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-            <Activity className="h-5 w-5 text-primary-500" aria-hidden="true" />
-            Acciones Rápidas
-          </h2>
-          <div className="space-y-3">
-            <Link
-              to="/patients/new"
-              className="flex items-center gap-3 rounded-lg border border-gray-200 p-3 text-sm font-medium text-gray-700 transition hover:border-primary-300 hover:bg-primary-50"
-            >
-              <UserPlus className="h-5 w-5 text-primary-500" aria-hidden="true" />
-              Registrar nuevo paciente
-            </Link>
-            <Link
-              to="/patients"
-              className="flex items-center gap-3 rounded-lg border border-gray-200 p-3 text-sm font-medium text-gray-700 transition hover:border-primary-300 hover:bg-primary-50"
-            >
-              <Users className="h-5 w-5 text-accent-500" aria-hidden="true" />
-              Ver todos los pacientes
-            </Link>
+            )}
           </div>
-        </div>
-
-        {/* Recent patients */}
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200 lg:col-span-2">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-            <Clock className="h-5 w-5 text-primary-500" aria-hidden="true" />
-            Pacientes Recientes
-          </h2>
-          {recentPatients.length === 0 ? (
-            <p className="py-8 text-center text-sm text-gray-400">
-              Aún no tienes pacientes registrados.
-            </p>
+          {loading ? (
+            <RackSkeleton />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-500">
-                    <th className="pb-3 pr-4 font-semibold">Paciente</th>
-                    <th className="pb-3 pr-4 font-semibold">DNI</th>
-                    <th className="hidden pb-3 pr-4 font-semibold sm:table-cell">Diagnóstico</th>
-                    <th className="pb-3 pr-4 font-semibold">Estado</th>
-                    <th className="pb-3 font-semibold">Actualizado</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {recentPatients.map((p) => (
-                    <tr key={p.id} className="hover:bg-gray-50">
-                      <td className="py-3 pr-4">
-                        <Link
-                          to={`/patients/${p.id}`}
-                          className="font-medium text-primary-600 hover:text-primary-700 hover:underline"
-                        >
-                          {p.firstName} {p.lastName}
-                        </Link>
-                      </td>
-                      <td className="py-3 pr-4 text-gray-600">{p.dni}</td>
-                      <td className="hidden py-3 pr-4 text-gray-600 sm:table-cell">
-                        <span className="line-clamp-1">{p.diagnosis || "—"}</span>
-                      </td>
-                      <td className="py-3 pr-4">
-                        <span
-                          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
-                            p.status === "active"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          {p.status === "active" ? "Activo" : "Inactivo"}
-                        </span>
-                      </td>
-                      <td className="py-3 text-gray-500">{formatDate(p.updatedAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <>
+              <Rack patients={rackOrder} focusedId={focused?.id} onFocusPatient={setFocusedId} />
+              {patients.length > 0 ? (
+                <Legend stats={stats} />
+              ) : (
+                <p className="mt-4 text-sm text-ink-2">
+                  Tu gradilla está vacía. Cada paciente que registres ocupará un alveolo, con su
+                  tapón verde si está activo y un anillo rojo si tiene alergias.
+                </p>
+              )}
+            </>
+          )}
+        </section>
+
+        <aside aria-label="Paciente seleccionado" className="lg:sticky lg:top-0">
+          {loading ? (
+            <div className="label-stock space-y-3 p-5" aria-hidden="true">
+              <span className="skeleton block h-6 w-3/4" />
+              <span className="skeleton block h-4 w-1/2" />
+              <span className="skeleton block h-12 w-full" />
+            </div>
+          ) : focused ? (
+            <>
+              <PatientLabel patient={focused} headingLevel="h2" />
+              <div className="mt-3 flex gap-2">
+                <Link to={`/patients/${focused.id}`} className="btn btn-ink flex-1">
+                  Abrir ficha
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+                <Link
+                  to={`/patients/${focused.id}/edit`}
+                  className="btn btn-secondary"
+                  aria-label={`Editar a ${fullName(focused)}`}
+                >
+                  <Pencil className="h-4 w-4" aria-hidden="true" />
+                  Editar
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="rounded-xl border border-dashed border-rule-strong p-6 text-center">
+              <p className="font-semibold text-ink">Aquí verás la etiqueta del paciente</p>
+              <p className="mt-1 text-sm text-ink-2">
+                Pasa el cursor por un tapón de la gradilla para ver sus datos clave.
+              </p>
+              <Link to="/patients/new" className="btn btn-primary mt-5">
+                <UserPlus className="h-4 w-4" aria-hidden="true" />
+                Registrar el primer paciente
+              </Link>
             </div>
           )}
-        </div>
+        </aside>
       </div>
+
+      {!loading && recent.length > 0 && (
+        <section aria-labelledby="recent-title">
+          <div className="mb-3 flex items-baseline justify-between gap-4">
+            <h2 id="recent-title" className="text-lg font-bold text-ink">
+              Actualizados recientemente
+            </h2>
+            <Link
+              to="/patients"
+              className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-ink underline"
+            >
+              Ver todos
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
+          <ul className="panel divide-y divide-rule">
+            {recent.map((p) => (
+              <li key={p.id} className="flex items-center gap-4 px-4 py-3 sm:px-5">
+                <TubeGlyph status={p.status} allergic={hasAllergies(p)} />
+                <div className="min-w-0 flex-1">
+                  <Link
+                    to={`/patients/${p.id}`}
+                    className="font-semibold text-ink hover:underline"
+                  >
+                    {fullName(p)}
+                  </Link>
+                  <p className="truncate text-sm text-ink-2">{p.diagnosis || "Sin diagnóstico registrado"}</p>
+                </div>
+                <span className="hidden font-mono text-sm text-ink-3 tabular sm:block">
+                  {formatDate(p.updatedAt)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

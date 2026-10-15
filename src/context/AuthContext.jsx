@@ -1,45 +1,45 @@
-import { createContext, useContext, useState, useCallback } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { STORAGE_KEYS, getFromStorage, saveToStorage, removeFromStorage } from "../utils/storage";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
+import { api, setUnauthorizedHandler } from "../lib/api";
+import { clearDrafts, getToken, setToken } from "../utils/storage";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => getFromStorage(STORAGE_KEYS.CURRENT_USER));
-
-  const register = useCallback((name, email, password) => {
-    const users = getFromStorage(STORAGE_KEYS.USERS) || [];
-    if (users.find((u) => u.email === email)) {
-      return { success: false, error: "Este correo electrónico ya está registrado." };
-    }
-    const newUser = { id: uuidv4(), name, email, password, createdAt: new Date().toISOString() };
-    users.push(newUser);
-    saveToStorage(STORAGE_KEYS.USERS, users);
-    const { password: _, ...safeUser } = newUser;
-    setUser(safeUser);
-    saveToStorage(STORAGE_KEYS.CURRENT_USER, safeUser);
-    return { success: true };
-  }, []);
-
-  const login = useCallback((email, password) => {
-    const users = getFromStorage(STORAGE_KEYS.USERS) || [];
-    const found = users.find((u) => u.email === email && u.password === password);
-    if (!found) {
-      return { success: false, error: "Correo o contraseña incorrectos." };
-    }
-    const { password: _, ...safeUser } = found;
-    setUser(safeUser);
-    saveToStorage(STORAGE_KEYS.CURRENT_USER, safeUser);
-    return { success: true };
-  }, []);
+  const [user, setUser] = useState(null);
+  const [checking, setChecking] = useState(() => Boolean(getToken()));
 
   const logout = useCallback(() => {
+    setToken(null);
+    clearDrafts();
     setUser(null);
-    removeFromStorage(STORAGE_KEYS.CURRENT_USER);
+  }, []);
+
+  useEffect(() => {
+    setUnauthorizedHandler(logout);
+    if (!getToken()) return;
+    api
+      .me()
+      .then(({ user }) => setUser(user))
+      .catch(() => logout())
+      .finally(() => setChecking(false));
+  }, [logout]);
+
+  const login = useCallback(async (email, password) => {
+    const { token, user } = await api.login(email.trim(), password);
+    setToken(token);
+    setUser(user);
+  }, []);
+
+  const register = useCallback(async (name, email, password) => {
+    const { token, user } = await api.register(name.trim(), email.trim(), password);
+    setToken(token);
+    setUser(user);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider
+      value={{ user, checking, login, register, logout, isAuthenticated: !!user }}
+    >
       {children}
     </AuthContext.Provider>
   );

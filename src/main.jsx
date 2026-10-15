@@ -1,19 +1,20 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { PatientProvider } from "./context/PatientContext";
-import App from "./App";
+import { ToastProvider } from "./context/ToastContext";
+import { router } from "./App";
 import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter>
+    <ToastProvider>
       <AuthProvider>
         <PatientProvider>
-          <App />
+          <RouterProvider router={router} />
         </PatientProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </ToastProvider>
   </StrictMode>
 );

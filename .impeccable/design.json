@@ -1,0 +1,584 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T17:47:23.941Z",
+  "title": "Design System: PatientApp",
+  "extensions": {
+    "colorMeta": {
+      "tray": {
+        "role": "neutral",
+        "displayName": "Bandeja",
+        "canonical": "#eef1ee",
+        "tonalRamp": [
+          "#0a0c0a",
+          "#222522",
+          "#3e403e",
+          "#5c5e5c",
+          "#7b7e7b",
+          "#9c9f9c",
+          "#c2c5c2",
+          "#eeefee"
+        ]
+      },
+      "rail": {
+        "role": "neutral",
+        "displayName": "Raíl",
+        "canonical": "#e2e7e3",
+        "tonalRamp": [
+          "#090c0a",
+          "#212522",
+          "#3d413e",
+          "#5b5f5b",
+          "#7a7f7b",
+          "#9ba09c",
+          "#c1c5c2",
+          "#edefed"
+        ]
+      },
+      "well": {
+        "role": "neutral",
+        "displayName": "Pozo de gradilla",
+        "canonical": "#d7ddd9",
+        "tonalRamp": [
+          "#080c0a",
+          "#212522",
+          "#3c413e",
+          "#5a5f5c",
+          "#797f7b",
+          "#9aa09c",
+          "#c0c6c2",
+          "#edefed"
+        ]
+      },
+      "label": {
+        "role": "neutral",
+        "displayName": "Etiqueta térmica",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#7d7d7d",
+          "#9e9e9e",
+          "#c4c4c4",
+          "#eeeeee"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Filete",
+        "canonical": "#cfd6d1",
+        "tonalRamp": [
+          "#080c09",
+          "#202622",
+          "#3c413d",
+          "#595f5b",
+          "#797f7b",
+          "#9aa09c",
+          "#bfc6c1",
+          "#ecefed"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Filete fuerte",
+        "canonical": "#b4bdb7",
+        "tonalRamp": [
+          "#070d09",
+          "#1f2621",
+          "#3a423d",
+          "#58605b",
+          "#77807a",
+          "#98a19b",
+          "#bec7c1",
+          "#ecefed"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#18201c",
+        "tonalRamp": [
+          "#060d09",
+          "#1e2622",
+          "#39423e",
+          "#57605b",
+          "#76807b",
+          "#97a19c",
+          "#bcc7c1",
+          "#ebf0ed"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Tinta secundaria",
+        "canonical": "#46504b",
+        "tonalRamp": [
+          "#060d09",
+          "#1d2622",
+          "#39423e",
+          "#56605b",
+          "#75807b",
+          "#96a29c",
+          "#bcc7c1",
+          "#ebf0ed"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Tinta terciaria",
+        "canonical": "#5b6560",
+        "tonalRamp": [
+          "#060d0a",
+          "#1e2622",
+          "#39423e",
+          "#56605b",
+          "#76807b",
+          "#97a19c",
+          "#bcc7c2",
+          "#ebf0ed"
+        ]
+      },
+      "cap-violet": {
+        "role": "primary",
+        "displayName": "Violeta de tapón",
+        "canonical": "#6a48c7",
+        "tonalRamp": [
+          "#1a0052",
+          "#2e0075",
+          "#461698",
+          "#623ebd",
+          "#8061e2",
+          "#a084ff",
+          "#c5abff",
+          "#ede7ff"
+        ]
+      },
+      "violet-deep": {
+        "role": "primary",
+        "displayName": "Violeta profundo",
+        "canonical": "#5b3bb8",
+        "tonalRamp": [
+          "#190052",
+          "#2c0075",
+          "#441999",
+          "#5f40bd",
+          "#7d63e3",
+          "#9d86ff",
+          "#c2adff",
+          "#ece7ff"
+        ]
+      },
+      "violet-ink": {
+        "role": "primary",
+        "displayName": "Violeta tinta",
+        "canonical": "#4a2fa0",
+        "tonalRamp": [
+          "#16004e",
+          "#280070",
+          "#402193",
+          "#5c45b7",
+          "#7a67dc",
+          "#9a8aff",
+          "#beb0ff",
+          "#ebe8ff"
+        ]
+      },
+      "violet-wash": {
+        "role": "primary",
+        "displayName": "Lavado violeta",
+        "canonical": "#efeafb",
+        "tonalRamp": [
+          "#0d0914",
+          "#25222e",
+          "#413d4b",
+          "#5f5b69",
+          "#7f7a8a",
+          "#a09bab",
+          "#c6c1d1",
+          "#efedf4"
+        ]
+      },
+      "cap-green": {
+        "role": "secondary",
+        "displayName": "Verde de tapón (activo)",
+        "canonical": "#2c8653",
+        "tonalRamp": [
+          "#001600",
+          "#003204",
+          "#005021",
+          "#09703f",
+          "#39915d",
+          "#5db47e",
+          "#84dba2",
+          "#d7f8e1"
+        ]
+      },
+      "green-ink": {
+        "role": "secondary",
+        "displayName": "Verde tinta",
+        "canonical": "#1f6b41",
+        "tonalRamp": [
+          "#001500",
+          "#00310a",
+          "#004e26",
+          "#236e44",
+          "#468f62",
+          "#68b183",
+          "#8ed8a8",
+          "#daf7e3"
+        ]
+      },
+      "green-wash": {
+        "role": "secondary",
+        "displayName": "Lavado verde",
+        "canonical": "#e3f2e9",
+        "tonalRamp": [
+          "#040e08",
+          "#1c2721",
+          "#37433c",
+          "#54615a",
+          "#748179",
+          "#94a29a",
+          "#bac8c0",
+          "#eaf0ed"
+        ]
+      },
+      "cap-gray": {
+        "role": "secondary",
+        "displayName": "Gris de tapón (inactivo)",
+        "canonical": "#9aa29d",
+        "tonalRamp": [
+          "#070d09",
+          "#1f2622",
+          "#3b423d",
+          "#58605b",
+          "#787f7b",
+          "#99a19c",
+          "#bec6c1",
+          "#ecefed"
+        ]
+      },
+      "cap-red": {
+        "role": "tertiary",
+        "displayName": "Rojo de tapón (alergia)",
+        "canonical": "#cf3428",
+        "tonalRamp": [
+          "#3e0000",
+          "#640000",
+          "#8a0000",
+          "#b10805",
+          "#d83e30",
+          "#ff6453",
+          "#ff8c78",
+          "#ffdcd1"
+        ]
+      },
+      "red-ink": {
+        "role": "tertiary",
+        "displayName": "Rojo tinta",
+        "canonical": "#a3241b",
+        "tonalRamp": [
+          "#370000",
+          "#5c0000",
+          "#810000",
+          "#a7281e",
+          "#cd4d3f",
+          "#f37060",
+          "#ff9785",
+          "#ffdfd5"
+        ]
+      },
+      "red-wash": {
+        "role": "tertiary",
+        "displayName": "Lavado rojo",
+        "canonical": "#fdecea",
+        "tonalRamp": [
+          "#120807",
+          "#2d211f",
+          "#493c3b",
+          "#685a58",
+          "#887977",
+          "#aa9a98",
+          "#d0c0be",
+          "#f3edec"
+        ]
+      },
+      "warn-ink": {
+        "role": "tertiary",
+        "displayName": "Ámbar de aviso",
+        "canonical": "#9a4a00",
+        "tonalRamp": [
+          "#2d0000",
+          "#4e0000",
+          "#702300",
+          "#934400",
+          "#b76429",
+          "#dc864d",
+          "#ffac73",
+          "#ffe6d0"
+        ]
+      },
+      "warn-wash": {
+        "role": "tertiary",
+        "displayName": "Lavado ámbar",
+        "canonical": "#fff3e3",
+        "tonalRamp": [
+          "#110a02",
+          "#2b2216",
+          "#483e31",
+          "#665c4e",
+          "#867b6d",
+          "#a89d8e",
+          "#cec2b3",
+          "#f2eee7"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Título de página (1.5rem en móvil, 1.875rem desde 640px) y nombre en la etiqueta grande de la ficha."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de sección y de diálogo."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto general y campos; 16px en campos en móvil para evitar el zoom de iOS."
+      },
+      "body-sm": {
+        "displayName": "Body pequeño",
+        "purpose": "Diagnósticos en filas, descripciones, cuerpo de diálogo."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Etiquetas de campo y leyendas."
+      },
+      "data": {
+        "displayName": "Data (Mono)",
+        "purpose": "DNI, fechas, códigos, recuentos, grupo sanguíneo; cifras tabulares."
+      },
+      "data-xs": {
+        "displayName": "Data pequeño (Mono)",
+        "purpose": "Código corto, fecha de actualización en el pie de la etiqueta, atajos de teclado."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-label",
+        "value": "0 1px 2px rgb(24 32 28 / 0.06), 0 2px 8px -2px rgb(24 32 28 / 0.08)",
+        "purpose": "Etiquetas de paciente y tarjeta de acceso; la única superficie elevada en reposo."
+      },
+      {
+        "name": "shadow-lift",
+        "value": "0 6px 16px -6px rgb(24 32 28 / 0.25), 0 2px 4px rgb(24 32 28 / 0.08)",
+        "purpose": "Tapón levantado, diálogos y avisos."
+      },
+      {
+        "name": "well-inset",
+        "value": "inset 0 2px 8px rgb(24 32 28 / 0.14)",
+        "purpose": "Pozo hundido de la gradilla."
+      },
+      {
+        "name": "socket-inset",
+        "value": "inset 0 2px 3px rgb(24 32 28 / 0.2)",
+        "purpose": "Cada alveolo de la gradilla."
+      },
+      {
+        "name": "cap-rest",
+        "value": "inset 0 -3px 0 rgb(0 0 0 / 0.18)",
+        "purpose": "Filo inferior del tapón en reposo."
+      },
+      {
+        "name": "focus-ring-field",
+        "value": "0 0 0 3px rgb(106 72 199 / 0.18)",
+        "purpose": "Anillo de foco de campo (ámbar rgb(154 74 0 / 0.18) si es inválido)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Curva única de todo el sistema."
+      },
+      {
+        "name": "state",
+        "value": "150ms",
+        "purpose": "Cambios de color, borde y pulsación en botones, campos y navegación."
+      },
+      {
+        "name": "cap-lift",
+        "value": "200ms translateY(-4px)",
+        "purpose": "Levantamiento del tapón al foco/hover en la gradilla: el único movimiento de autor."
+      },
+      {
+        "name": "dialog-in",
+        "value": "200ms",
+        "purpose": "Entrada de diálogos de confirmación (translateY 6px, scale 0.98)."
+      },
+      {
+        "name": "toast-in / drawer-in",
+        "value": "220ms",
+        "purpose": "Entrada de avisos y del cajón móvil."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "prefers-reduced-motion anula animaciones y transiciones."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón primario",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción primaria violeta, una por pantalla.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Nuevo paciente</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding:0 1.125rem;border-radius:.5rem;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:.9375rem;font-weight:600;line-height:1;border:none;cursor:pointer;transition:background-color 150ms cubic-bezier(.16,1,.3,1),transform 150ms cubic-bezier(.16,1,.3,1)}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:2px solid #6a48c7;outline-offset:2px}.ds-btn-primary{background:#5b3bb8;color:#fff}.ds-btn-primary:hover{background:#4a2fa0}"
+    },
+    {
+      "name": "Botón secundario",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Acción secundaria: blanco con filete fuerte.",
+      "html": "<button class=\"ds-btn2\">Cancelar</button>",
+      "css": ".ds-btn2{display:inline-flex;align-items:center;min-height:2.75rem;padding:0 1.125rem;border-radius:.5rem;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:.9375rem;font-weight:600;background:#fff;color:#18201c;border:1px solid #b4bdb7;cursor:pointer;transition:border-color 150ms cubic-bezier(.16,1,.3,1)}.ds-btn2:hover{border-color:#5b6560}.ds-btn2:active{transform:translateY(1px)}.ds-btn2:focus-visible{outline:2px solid #6a48c7;outline-offset:2px}"
+    },
+    {
+      "name": "Botón tinta",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "Confirmación destructiva en el diálogo.",
+      "html": "<button class=\"ds-btn-ink\">Eliminar paciente</button>",
+      "css": ".ds-btn-ink{display:inline-flex;align-items:center;min-height:2.75rem;padding:0 1.125rem;border-radius:.5rem;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:.9375rem;font-weight:600;background:#18201c;color:#fff;border:none;cursor:pointer;transition:background-color 150ms cubic-bezier(.16,1,.3,1)}.ds-btn-ink:hover{background:#000}.ds-btn-ink:focus-visible{outline:2px solid #6a48c7;outline-offset:2px}"
+    },
+    {
+      "name": "Campo de texto",
+      "kind": "input",
+      "refersTo": "field-input",
+      "description": "Campo blanco con filete; foco violeta, error ámbar.",
+      "html": "<label class=\"ds-lab\">DNI / NIE<input class=\"ds-input ds-mono-in\" value=\"12345678Z\"></label><label class=\"ds-lab\">Teléfono<input class=\"ds-input\" aria-invalid=\"true\" value=\"600\"><span class=\"ds-err\">Introduce un teléfono válido.</span></label>",
+      "css": ".ds-lab{display:block;margin-bottom:1rem;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:.875rem;font-weight:600;color:#18201c}.ds-input{display:block;box-sizing:border-box;margin-top:.375rem;width:100%;min-height:2.75rem;border-radius:.5rem;border:1px solid #b4bdb7;background:#fff;padding:.5rem .75rem;color:#18201c;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-weight:400;font-size:.9375rem;transition:border-color 150ms cubic-bezier(.16,1,.3,1),box-shadow 150ms cubic-bezier(.16,1,.3,1)}.ds-mono-in{font-family:'Atkinson Hyperlegible Mono',monospace;text-transform:uppercase}.ds-input:hover{border-color:#5b6560}.ds-input:focus{outline:none;border-color:#6a48c7;box-shadow:0 0 0 3px rgb(106 72 199/.18)}.ds-input[aria-invalid=true]{border-color:#9a4a00;background:#fff3e3}.ds-input[aria-invalid=true]:focus{box-shadow:0 0 0 3px rgb(154 74 0/.18)}.ds-err{display:block;margin-top:.375rem;font-weight:500;color:#9a4a00}"
+    },
+    {
+      "name": "Ficha de opción",
+      "kind": "chip",
+      "refersTo": "choice-chip",
+      "description": "Radio como ficha pulsable; seleccionada en violeta.",
+      "html": "<div class=\"ds-chips\"><label class=\"ds-chip\">A+</label><label class=\"ds-chip is-on\">0−</label><label class=\"ds-chip\">B+</label></div>",
+      "css": ".ds-chips{display:flex;gap:.5rem;flex-wrap:wrap}.ds-chip{display:inline-flex;align-items:center;min-height:2.75rem;padding:0 .875rem;border-radius:.5rem;border:1px solid #b4bdb7;background:#fff;color:#46504b;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:.875rem;font-weight:500;cursor:pointer;transition:border-color 150ms,background-color 150ms}.ds-chip:hover{border-color:#5b6560}.ds-chip.is-on{border-color:#5b3bb8;background:#efeafb;color:#4a2fa0}"
+    },
+    {
+      "name": "Navegación lateral",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Barra lateral en raíl; entrada activa en blanco con icono violeta.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-i is-on\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"/></svg><span>Gradilla</span></a><a class=\"ds-nav-i\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2\"/></svg><span>Pacientes</span></a><a class=\"ds-nav-i\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M2 21v-2a4 4 0 0 1 4-4h6M19 8v6M16 11h6\"/></svg><span>Nuevo paciente</span><kbd>N</kbd></a></nav>",
+      "css": ".ds-nav{width:16rem;padding:.75rem;background:#e2e7e3;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif}.ds-nav-i{display:flex;align-items:center;gap:.75rem;min-height:2.75rem;padding:0 .75rem;margin-bottom:.25rem;border-radius:.5rem;font-size:.9375rem;font-weight:500;color:#46504b;text-decoration:none;transition:background-color 150ms,color 150ms}.ds-nav-i span{flex:1}.ds-nav-i:hover{background:rgb(255 255 255/.6);color:#18201c}.ds-nav-i.is-on{background:#fff;color:#18201c}.ds-nav-i.is-on svg{color:#5b3bb8}.ds-nav-i:focus-visible{outline:2px solid #6a48c7;outline-offset:2px}.ds-nav-i kbd{border:1px solid #b4bdb7;border-radius:.25rem;padding:0 .375rem;font-family:'Atkinson Hyperlegible Mono',monospace;font-size:.7rem;color:#5b6560}"
+    },
+    {
+      "name": "Panel reglado",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Contenedor por defecto: filete fuerte, sin relleno ni sombra, sobre la bandeja.",
+      "html": "<div class=\"ds-tray\"><section class=\"ds-panel\"><h2>Datos personales</h2><p>Identificación y contacto del paciente.</p></section></div>",
+      "css": ".ds-tray{background:#eef1ee;padding:1.5rem}.ds-panel{border:1px solid #b4bdb7;border-radius:.75rem;padding:1.25rem;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;color:#18201c}.ds-panel h2{margin:0;font-size:1.125rem;font-weight:700}.ds-panel p{margin:.125rem 0 0;font-size:.875rem;color:#5b6560}"
+    },
+    {
+      "name": "Etiqueta de paciente",
+      "kind": "card",
+      "refersTo": "label-stock",
+      "description": "Etiqueta térmica: única superficie elevada; franja de estado, identidad, alergias y código.",
+      "html": "<div class=\"ds-tray2\"><article class=\"ds-label\"><div class=\"ds-strip\"></div><div class=\"ds-lb\"><h3><span>GARCÍA LÓPEZ</span>, Lucía</h3><p class=\"ds-mono\">DNI 12345678Z · 54 años · Mujer</p><div class=\"ds-allergy\"><b>Alergias: </b>Penicilina</div><div class=\"ds-foot\"><span class=\"ds-mono\">3F9A21C7</span><span class=\"ds-mono\">Act. 14 oct 2026</span></div></div></article></div>",
+      "css": ".ds-tray2{background:#eef1ee;padding:1.5rem}.ds-label{max-width:22rem;background:#fff;border:1px solid #cfd6d1;border-radius:.75rem;box-shadow:0 1px 2px rgb(24 32 28/.06),0 2px 8px -2px rgb(24 32 28/.08);overflow:hidden;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;color:#18201c}.ds-strip{height:.5rem;background:#2c8653}.ds-lb{padding:1.25rem}.ds-lb h3{margin:0;font-size:1.25rem;font-weight:700}.ds-mono{font-family:'Atkinson Hyperlegible Mono',monospace;font-size:.875rem;color:#46504b;font-variant-numeric:tabular-nums}.ds-lb p{margin:.375rem 0 0}.ds-allergy{margin-top:1rem;padding:.75rem .875rem;border-radius:.5rem;background:#fdecea;color:#a3241b;font-size:.875rem}.ds-foot{margin-top:1rem;padding-top:.75rem;border-top:1px dashed #cfd6d1;display:flex;justify-content:space-between}.ds-foot .ds-mono{font-size:.75rem;color:#5b6560}"
+    },
+    {
+      "name": "Gradilla con tapones",
+      "kind": "custom",
+      "refersTo": "rack",
+      "description": "Pozo hundido con alveolos; tapón verde/gris, anillo rojo si hay alergias; se levanta al foco/hover.",
+      "html": "<div class=\"ds-rack\"><a href=\"#\" class=\"ds-sock\"><span class=\"ds-cap\">LG</span></a><a href=\"#\" class=\"ds-sock\"><span class=\"ds-cap ds-allergic\">MR</span></a><a href=\"#\" class=\"ds-sock\"><span class=\"ds-cap ds-off\">JP</span></a><a href=\"#\" class=\"ds-sock\"><span class=\"ds-new\">+</span></a></div>",
+      "css": ".ds-rack{display:grid;grid-template-columns:repeat(4,3.5rem);gap:.75rem;padding:1rem;border-radius:1rem;background:#d7ddd9;box-shadow:inset 0 2px 8px rgb(24 32 28/.14);width:max-content}.ds-sock{display:block;border-radius:9999px;background:#e2e7e3;padding:12%;box-shadow:inset 0 2px 3px rgb(24 32 28/.2);text-decoration:none}.ds-sock:focus-visible{outline:2px solid #6a48c7;outline-offset:4px}.ds-cap{position:relative;display:flex;aspect-ratio:1;align-items:center;justify-content:center;border-radius:9999px;background:#2c8653;color:#fff;font-family:'Atkinson Hyperlegible Mono',monospace;font-size:.75rem;font-weight:600;box-shadow:inset 0 -3px 0 rgb(0 0 0/.18);transition:transform 200ms cubic-bezier(.16,1,.3,1),box-shadow 200ms cubic-bezier(.16,1,.3,1)}.ds-off{background:#9aa29d}.ds-allergic::after{content:\"\";position:absolute;inset:-4px;border-radius:9999px;border:3px solid #cf3428}.ds-sock:hover .ds-cap,.ds-sock:focus-visible .ds-cap{transform:translateY(-4px);box-shadow:0 6px 16px -6px rgb(24 32 28/.25),0 2px 4px rgb(24 32 28/.08)}.ds-new{display:flex;aspect-ratio:1;align-items:center;justify-content:center;border-radius:9999px;border:2px dashed #b4bdb7;color:#5b6560;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif}.ds-sock:hover .ds-new{border-color:#5b3bb8;color:#5b3bb8}@media (prefers-reduced-motion:reduce){.ds-cap{transition:none}}"
+    },
+    {
+      "name": "Aviso (toast)",
+      "kind": "custom",
+      "refersTo": "toast",
+      "description": "Aviso en tinta con acción Deshacer.",
+      "html": "<div class=\"ds-toast\"><span>Paciente eliminado</span><button>Deshacer</button></div>",
+      "css": ".ds-toast{display:flex;align-items:center;gap:.75rem;max-width:24rem;padding:.5rem .5rem .5rem 1rem;border-radius:.5rem;background:#18201c;color:#fff;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:.875rem;box-shadow:0 6px 16px -6px rgb(24 32 28/.25),0 2px 4px rgb(24 32 28/.08)}.ds-toast span{flex:1}.ds-toast button{min-height:2.25rem;padding:0 .75rem;border:none;border-radius:.375rem;background:transparent;color:#c9b8ff;font:inherit;font-weight:600;cursor:pointer}.ds-toast button:hover{background:rgb(255 255 255/.1)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "La gradilla de extracciones",
+    "overview": "Cada paciente es un tubo de extracción etiquetado y colocado en la gradilla de hoy. La interfaz es la bandeja del laboratorio: un fondo gris verdoso claro, alveolos hundidos que existen de verdad como estructura, tapones de color que dicen una sola cosa cada uno, y una etiqueta térmica blanca impresa en tinta casi negra donde vive la identidad del paciente. Nada se pinta para decorar; el color es un código y la tipografía está elegida para leerse rápido entre consulta y consulta.\n\nLa densidad es de herramienta, no de folleto: un contenedor compartido, paneles reglados con filete fino y sin relleno, y una única superficie elevada (la etiqueta). La profundidad sale del material (alveolos con sombra interior, tapón que se levanta) y no de tarjetas flotantes. El sistema rechaza el SaaS azul con barra degradada y tarjetas de métricas.",
+    "keyCharacteristics": [
+      "Bandeja gris verdosa (`tray`) como lienzo; todo lo demás se imprime encima o se hunde en ella.",
+      "Tapones de color como código semántico exclusivo: verde activo, gris inactivo, rojo alergia, violeta acción.",
+      "Etiqueta térmica blanca como única superficie con sombra.",
+      "Atkinson Hyperlegible Next para la interfaz, Atkinson Hyperlegible Mono solo para datos de etiqueta.",
+      "Un solo movimiento de autor: el tapón se levanta al recibir foco o hover."
+    ],
+    "rules": [
+      {
+        "name": "La Regla del Tapón",
+        "body": "Cada color de tapón tiene un único significado: verde = activo, gris = inactivo, rojo = alergia (exclusivo), violeta = acción primaria, selección activa y foco (exclusivo). Ningún color aparece como decoración.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Ámbar",
+        "body": "Los errores de formulario son ámbar (`warn-*`), nunca rojo: el rojo está reservado a las alergias.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Enlace en Tinta",
+        "body": "Los enlaces de texto son tinta con subrayado (separación 3px), nunca violeta. Los títulos de fila enlazados (nombre del paciente en listas) se subrayan al hover.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla de la Mono",
+        "body": "Atkinson Hyperlegible Mono solo para datos de etiqueta: DNI, fechas, códigos, recuentos, grupo sanguíneo. Nunca para títulos ni prosa.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regla del Apellido",
+        "body": "El nombre del paciente se imprime como en una etiqueta: APELLIDO en mayúsculas, coma, nombre.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regla de la Etiqueta Única",
+        "body": "`.label-stock` (blanco, filete, sombra de etiqueta) se reserva para las etiquetas de paciente y la tarjeta de acceso. Todo lo demás es un panel: filete `rule-strong` de 1px, sin relleno, sin sombra, sobre la bandeja.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** usar el color solo como señal: verde activo, gris inactivo, rojo alergia, violeta acción/selección/foco, ámbar error de formulario.",
+      "**Do** reservar la etiqueta térmica (blanco + sombra de etiqueta) para etiquetas de paciente y la tarjeta de acceso; todo lo demás es un panel reglado sin relleno.",
+      "**Do** imprimir DNI, fechas, códigos y recuentos en Atkinson Hyperlegible Mono con cifras tabulares.",
+      "**Do** colocar todo el contenido en el contenedor compartido (72rem) y los formularios en la medida izquierda de 48rem.",
+      "**Do** mantener objetivos táctiles de al menos 44px y el contorno de foco violeta visible.",
+      "**Do** limitar el movimiento a transiciones de estado de 150ms, el levantamiento del tapón (200ms), avisos y diálogos (200–220ms), todo con ease-out expo y anulado con `prefers-reduced-motion`."
+    ],
+    "donts": [
+      "**Don't** usar rojo para nada que no sea una alergia, ni para errores de formulario.",
+      "**Don't** usar violeta como decoración, en enlaces de texto o en estados que no sean acción, selección o foco.",
+      "**Don't** añadir sombras a paneles, filas o tarjetas: la etiqueta es la única superficie elevada en reposo.",
+      "**Don't** usar la mono para títulos, botones o prosa.",
+      "**Don't** construir barras degradadas, tarjetas de métricas ni el azul SaaS genérico.",
+      "**Don't** añadir animaciones de entrada a páginas o listas: el único movimiento de autor es el tapón que se levanta."
+    ]
+  }
+}
