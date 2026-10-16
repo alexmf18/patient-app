@@ -20,10 +20,15 @@ app.use(express.json());
 
 // Ensure tables exist on cold start
 let dbInitialized = false;
-app.use(async (_req, _res, next) => {
+app.use(async (_req, res, next) => {
   if (!dbInitialized) {
-    await initDb();
-    dbInitialized = true;
+    try {
+      await initDb();
+      dbInitialized = true;
+    } catch (err) {
+      console.error("Database init error:", err);
+      return res.status(503).json({ error: "No se pudo conectar con la base de datos." });
+    }
   }
   next();
 });
